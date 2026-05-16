@@ -1,0 +1,15 @@
+[package]
+name = "blackjack"
+version = "0.1.0"
+edition = "2024"
+authors = ["yoshitaka-k"]
+description = "Blackjack"
+license = "Apache-2.0"
+
+[dependencies]
+crossterm = "0.29.0"
+figlet-rs = "1.0.0"
+indicatif = "0.18.4"
+rand = "0.10.1"
+ratatui = "0.30.0"
+rustyline = "18.0.0"
