@@ -48,7 +48,7 @@ pub fn app() -> std::io::Result<()> {
     print_single_separator();
 
     // 手札配り
-    game.deal_setup(&mut deck, current, &mut players, &mut dealer);
+    game.deal_setup(current, &mut deck, &mut players, &mut dealer);
     wait_for_dramatic_pause();
 
     print_single_separator();

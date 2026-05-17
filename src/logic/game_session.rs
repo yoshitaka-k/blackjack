@@ -137,7 +137,7 @@ impl GameSession {
     }
 
     /// 手札配り
-    pub fn deal_setup(&self, deck: &mut Deck, current: usize, players: &mut Vec<Player>, dealer: &mut Player) {
+    pub fn deal_setup(&self, current: usize, deck: &mut Deck, players: &mut Vec<Player>, dealer: &mut Player) {
         let n = players.len();
 
         execute_with_spinner(
