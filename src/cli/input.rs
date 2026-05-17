@@ -94,6 +94,7 @@ impl WordCompleter {
     }
 }
 
+/// Tab補完ヘルパー
 impl Completer for WordCompleter {
     type Candidate = String;
 
@@ -126,11 +127,11 @@ impl Hinter for WordCompleter {
 }
 impl Validator for WordCompleter {}
 
-/// 入力処理（ベース）
+/// 入力処理
 /// `words` が空なら補完なし、非空なら Tab で候補を表示
 fn read_line(prompt: &str, words: &[&str]) -> rustyline::Result<String> {
     let config = Config::builder()
-        .completion_type(CompletionType::List)
+        .completion_type(CompletionType::Circular)
         .build();
     let input_tag = format!("{}", "[INPUT]".yellow());
     let full_prompt = format!("{} {} >> ", input_tag, prompt);
@@ -145,6 +146,7 @@ fn read_line(prompt: &str, words: &[&str]) -> rustyline::Result<String> {
     }
 }
 
+/// 入力処理（ベース）
 fn readline_inner<H: Helper>(
     rl: &mut Editor<H, DefaultHistory>,
     prompt: &str,
