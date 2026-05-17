@@ -86,6 +86,7 @@ dependencies = [
  "indicatif",
  "rand 0.10.1",
  "ratatui",
+ "regex",
  "rustyline",
 ]
 

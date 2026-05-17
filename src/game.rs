@@ -60,6 +60,10 @@ pub fn app() -> std::io::Result<()> {
 
     // ヒット or スタンド
     println!("{}", "Todo: Input Hit or Stand.".red());
+    game.input_call(current, &mut deck, &mut players);
+    wait_for_dramatic_pause();
+
+    print_single_separator();
 
     Ok(())
 }

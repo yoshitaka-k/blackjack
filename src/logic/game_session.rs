@@ -14,7 +14,10 @@ use crate::constants::{
 };
 use crate::cli::{
     indicate::{execute_with_spinner},
-    input::{input_isize_read_line},
+    input::{
+        input_isize_read_line,
+        input_match_read_line_with_words,
+    },
 };
 use crate::trump::shuffle::{
     double_cut,
@@ -149,5 +152,15 @@ impl GameSession {
                 self.deal_one(deck, dealer);
             }
         });
+    }
+
+    /// コール入力
+    pub fn input_call(&self, current: usize, deck: &mut Deck, players: &mut Vec<Player>) {
+        let input = input_match_read_line_with_words(
+            "hit or stand? [Tab]",
+            r"^(hit|stand)$",
+            &["hit", "stand"],
+        );
+        println!("{}", input);
     }
 }
