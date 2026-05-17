@@ -21,6 +21,10 @@ pub fn title_display() {
 
     println!("  Version: {}  |  License: {}", env!("CARGO_PKG_VERSION"), env!("CARGO_PKG_LICENSE"));
     println!("  Starting {} Game Engine... 🚀", env!("CARGO_PKG_NAME"));
+
+    print_single_separator();
+
+    println!("{}", "  Key of Game Force quit. (Ctrl+C or Ctrl+D).".yellow());
 }
 
 /// 1人手札表示
@@ -49,8 +53,7 @@ fn hand_display_one(player: &Player, open: bool) {
         }
     }
 
-    msg = msg.trim().to_string();
-    if let Some(m) = msg.strip_suffix(",") {
+    if let Some(m) = msg.to_string().strip_suffix(", ") {
         println!("{}", m);
     }
 }

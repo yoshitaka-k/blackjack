@@ -105,7 +105,7 @@ impl GameSession {
 
         wait_for_dramatic_pause();
 
-        println!("Starting Dealer: {}", format!("{}", players[current].get_name()).green());
+        println!("Starting Player: {}", format!("{}", players[current].get_name()).green());
 
         current
     }
