@@ -18,7 +18,7 @@ use crate::cli::{
 use crate::{wait_for_dramatic_pause};
 
 use crate::logic::{GameSession};
-use crate::trump::{Deck};
+use crate::trump::{Deck, PlayerStatus};
 
 /// ゲームフロー処理
 pub fn app() -> std::io::Result<()> {
@@ -67,37 +67,63 @@ pub fn app() -> std::io::Result<()> {
     // 手札表示
     players_hand_display(&dealer, &players, false);
 
-    print_single_separator();
+    print_double_separator();
+
+    print_br();
+
+    println!("=================== {} ==================", "Player Turn".green());
 
     // プレイヤー操作
-    // ヒット or スタンド
-    println!("{}", "Todo: call processing.".red());
-    for i in 0..players_count {
-        let idx = (current + i) % players_count;
-        // コール入力
-        game.input_call(&mut players[idx]);
-        wait_for_dramatic_pause();
+    let mut need_separator = false;
+    while game.has_players_call(&players) {
+        // ヒット or スタンド
+        for i in 0..players_count {
+            let idx = (current + i) % players_count;
 
-        // コール処理
-        game.call_process(&mut deck, &mut players[idx]);
-        hand_display_one(&players[idx], true);
-        wait_for_dramatic_pause();
+            match players[idx].get_status() {
+                PlayerStatus::Stand => continue,
+                PlayerStatus::Burst => continue,
+                _ => {},
+            }
 
-        if i < (players_count-1) {
-            print_single_separator();
+            if need_separator {
+                print_single_separator();
+            }
+            need_separator = true;
+
+            // コール入力
+            game.input_call(&mut players[idx]);
+            wait_for_dramatic_pause();
+
+            // コール処理
+            game.call_process(&mut deck, &mut players[idx]);
+            hand_display_one(&players[idx], true);
+            wait_for_dramatic_pause();
         }
     }
 
     print_double_separator();
 
-    // ディーラー操作
-    game.input_call(&mut dealer);
-    wait_for_dramatic_pause();
+    print_br();
 
-    // コール処理
-    game.call_process(&mut deck, &mut dealer);
-    hand_display_one(&dealer, true);
-    wait_for_dramatic_pause();
+    println!("=================== {} ==================", "Dealer Turn".magenta());
+
+    // ディーラー操作
+    need_separator = false;
+    while game.has_player_call(&dealer) {
+        if need_separator {
+            print_single_separator();
+        }
+        need_separator = true;
+
+        game.input_call(&mut dealer);
+        wait_for_dramatic_pause();
+
+        // コール処理
+        game.call_process(&mut deck, &mut dealer);
+        hand_display_one(&dealer, true);
+        wait_for_dramatic_pause();
+    }
 
     print_double_separator();
 
@@ -106,7 +132,6 @@ pub fn app() -> std::io::Result<()> {
     println!("=================== {} ==================", "Game Result".yellow());
 
     // 判定
-    println!("{}", "Todo: End face processing.".red());
     println!("{}", "Todo: Natural Blackjack processing.".red());
     game.end_fase(&dealer, &mut players);
     wait_for_dramatic_pause();

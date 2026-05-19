@@ -178,6 +178,29 @@ impl GameSession {
         });
     }
 
+    // プレイヤーがスタンドかバーストじゃなければtrue
+    pub fn has_player_call(&self, player: &Player) -> bool {
+        match player.get_status() {
+            PlayerStatus::None => return true,
+            PlayerStatus::Hit => return true,
+            _ => {},
+        }
+        false
+    }
+
+    /// 全員スタンドかバーストかしない限りtrue
+    pub fn has_players_call(&self, players: &Vec<Player>) -> bool {
+        for player in players {
+            match player.get_status() {
+                PlayerStatus::None => return true,
+                PlayerStatus::Hit => return true,
+                _ => {},
+            }
+        }
+
+        false
+    }
+
     /// コール入力
     pub fn input_call(&self, player: &mut Player) {
         println!("Input Call: {}. ", player.get_name());
