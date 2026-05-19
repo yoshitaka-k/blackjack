@@ -6,12 +6,14 @@ pub struct Deck {
 }
 
 impl Deck {
-    pub fn new() -> Self {
+    pub fn new(deck_count: usize) -> Self {
         let mut cards = Vec::new();
 
-        for suit in ["h", "d", "c", "s"] {
-            for rank in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] {
-                cards.push(Card::new(suit, rank));
+        for _ in 0..deck_count {
+            for suit in ["h", "d", "c", "s"] {
+                for rank in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] {
+                    cards.push(Card::new(suit, rank));
+                }
             }
         }
 

@@ -2,7 +2,7 @@ use crossterm::{
     style::{Stylize},
 };
 
-use crate::constants::{CPU_COUNT};
+use crate::constants::{NUM_DECKS, CPU_COUNT};
 use crate::cli::{
     console::{
         print_br,
@@ -31,7 +31,8 @@ pub fn app() -> std::io::Result<()> {
     print_single_separator();
 
     // 山札設定
-    let mut deck = Deck::new();
+    println!("  Use Deck num: {}", NUM_DECKS);
+    let mut deck = Deck::new(NUM_DECKS);
     game.shuffle(deck.get_cards());
 
     print_single_separator();
