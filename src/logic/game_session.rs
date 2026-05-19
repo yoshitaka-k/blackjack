@@ -244,12 +244,18 @@ impl GameSession {
                     player.update_chip(false);
                 },
                 _ => {
-                    if player.rank_sum() > dealer.rank_sum() {
+                    if dealer.rank_sum() > TWENTY_ONE_NUM {
                         println!("      >> {}", "Win.".green());
                         player.update_chip(true);
+
+                    } else if player.rank_sum() > dealer.rank_sum() {
+                        println!("      >> {}", "Win.".green());
+                        player.update_chip(true);
+
                     } else if player.rank_sum() == dealer.rank_sum() {
                         println!("      >> {}", "Push.".green());
                         player.clear_bet();
+
                     } else {
                         println!("      >> {}", "Lose.".red());
                         player.update_chip(false);
