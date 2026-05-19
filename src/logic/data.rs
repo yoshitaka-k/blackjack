@@ -37,7 +37,7 @@ impl Data {
     /// 空ファイル作成
     fn crate_empty_csv() -> Result<(), Box<dyn Error>> {
         let mut wtr = WriterBuilder::new()
-            .has_headers(true)
+            .has_headers(false)
             .from_path(CSV_PATH)?;
 
         wtr.write_record(&["name", "chip"])?;
@@ -55,7 +55,7 @@ impl Data {
 
         let file = File::open(CSV_PATH)?;
         let mut rdr = ReaderBuilder::new()
-            .has_headers(true)
+            .has_headers(false)
             .from_reader(file);
 
         let mut records= Vec::new();
@@ -68,7 +68,9 @@ impl Data {
 
     /// 書き込み
     pub fn save(players: &Vec<Player>) -> Result<(), Box<dyn Error>> {
-        let mut wtr = WriterBuilder::new().from_path(CSV_PATH)?;
+        let mut wtr = WriterBuilder::new()
+            .has_headers(false)
+            .from_path(CSV_PATH)?;
 
         for player in players {
             wtr.serialize(Record {
