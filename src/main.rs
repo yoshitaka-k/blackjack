@@ -6,9 +6,6 @@ use crossterm::{
 };
 
 use blackjack::cli::{
-    console::{
-        print_double_separator
-    },
     print_display::{title_display}
 };
 use blackjack::game::{app};
@@ -22,11 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         MoveTo(0, 0)
     )?;
 
-    print_double_separator();
-
     title_display();
-
-    print_double_separator();
 
     let _ = app();
 

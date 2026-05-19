@@ -1,3 +1,10 @@
+use std::io::{stdout};
+
+use crossterm::{
+    execute,
+    cursor::{MoveTo},
+    terminal::{Clear, ClearType},
+};
 use crossterm::{
     style::{Stylize},
 };
@@ -9,19 +16,27 @@ use crate::cli::{
         print_single_separator,
         print_double_separator,
     },
+    indicate::{
+        execute_with_spinner,
+    },
     print_display::{
+        title_display,
         hand_display_one,
         players_hand_display,
         players_chip_display,
     },
 };
-use crate::{wait_for_dramatic_pause};
+use crate::{
+    wait_for_dramatic_pause,
+    wait_for_long_dramatic_pause,
+};
 
 use crate::logic::{GameSession};
 use crate::trump::{Deck, Player, PlayerStatus};
 
 /// ゲームフロー処理
 pub fn app() -> std::io::Result<()> {
+    let mut stroke = stdout();
     let game = GameSession::new();
     let round_count = DEFAULT_ROUND_COUNT;
 
@@ -53,7 +68,26 @@ pub fn app() -> std::io::Result<()> {
 
     print_br();
 
+    execute_with_spinner(
+        "Next Round ...",
+        "",
+    || {
+        wait_for_long_dramatic_pause();
+        wait_for_long_dramatic_pause();
+    });
+
+
     for round in 0..round_count {
+        execute!(
+            stroke,
+            Clear(ClearType::All),
+            MoveTo(0, 0)
+        )?;
+
+        title_display();
+
+        print_br();
+
         println!("Round: {}/{}", round + 1, round_count);
 
         print_br();
@@ -82,6 +116,14 @@ pub fn app() -> std::io::Result<()> {
         print_br();
 
         wait_for_dramatic_pause();
+
+        execute_with_spinner(
+            "Next Round ...",
+            "",
+        || {
+            wait_for_long_dramatic_pause();
+            wait_for_long_dramatic_pause();
+        });
 
         // 初期化
         dealer.clear();

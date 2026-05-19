@@ -5,7 +5,10 @@ use crossterm::{
 
 use crate::constants::{TWENTY_ONE_NUM};
 use crate::cli::{
-    console::{print_single_separator},
+    console::{
+        print_single_separator,
+        print_double_separator,
+    },
 };
 use crate::trump::{Player};
 use crate::{capitalize, wait_for_dramatic_pause};
@@ -14,6 +17,8 @@ use crate::{capitalize, wait_for_dramatic_pause};
 pub fn title_display() {
     let standard_font = FIGlet::standard().unwrap();
     let title = &format!("{}", standard_font.convert(&capitalize(env!("CARGO_PKG_NAME"))).unwrap());
+
+    print_double_separator();
 
     print!("{}", title.clone().magenta().bold());
 
@@ -25,6 +30,8 @@ pub fn title_display() {
     print_single_separator();
 
     println!("{}", "  Key of Game Force quit. (Ctrl+C or Ctrl+D).".yellow());
+
+    print_double_separator();
 }
 
 /// 1人手札表示

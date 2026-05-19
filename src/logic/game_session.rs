@@ -116,7 +116,7 @@ impl GameSession {
 
     /// 賭けチップ入力
     pub fn input_bet(&self, player: &mut Player) {
-        println!("Input Bet: {}. ", player.get_name());
+        println!("Input Bet: {} ({}). ", player.get_name(), player.get_chip());
 
         let bet: isize;
 
