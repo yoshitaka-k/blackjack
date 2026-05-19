@@ -8,7 +8,7 @@ use crate::cli::{
     console::{print_single_separator},
 };
 use crate::trump::{Player};
-use crate::{capitalize};
+use crate::{capitalize, wait_for_dramatic_pause};
 
 /// タイトルとか表示
 pub fn title_display() {
@@ -66,12 +66,16 @@ pub fn players_hand_display(dealer: &Player, players: &Vec<Player>, open: bool) 
 
     hand_display_one(dealer, open);
 
+    wait_for_dramatic_pause();
+
     print_single_separator();
 
     println!("Players Hand");
 
     for player in players {
         hand_display_one(player, true);
+
+        wait_for_dramatic_pause();
     }
 }
 

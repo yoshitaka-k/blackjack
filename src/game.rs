@@ -54,8 +54,8 @@ pub fn app() -> std::io::Result<()> {
     for i in 0..players_count {
         let idx = (current + i) % players_count;
         game.input_bet(&mut players[idx]);
+        wait_for_dramatic_pause();
     }
-    wait_for_dramatic_pause();
 
     print_double_separator();
 
@@ -63,7 +63,7 @@ pub fn app() -> std::io::Result<()> {
     game.deal_setup(current, &mut deck, &mut players, &mut dealer);
     wait_for_dramatic_pause();
 
-    print_double_separator();
+    print_single_separator();
 
     // 手札表示
     players_hand_display(&dealer, &players, false);
@@ -129,6 +129,8 @@ pub fn app() -> std::io::Result<()> {
     print_double_separator();
 
     print_br();
+
+    wait_for_dramatic_pause();
 
     println!("=================== {} ==================", "Game Result".yellow());
 

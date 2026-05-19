@@ -15,7 +15,7 @@ use rustyline::{
     Context, Editor, Helper,
 };
 
-use crate::cli::console::{system_bold, error};
+use crate::cli::console::{error};
 
 /// 入力処理（正規表現判定）
 /// 正規表現の値が入力されるまで表示
@@ -154,11 +154,11 @@ fn readline_inner<H: Helper>(
     match rl.readline(prompt) {
         Ok(line) => Ok(line.trim().to_string()),
         Err(ReadlineError::Interrupted) => {
-            system_bold("Pressing Ctrl+C. Ends the Game.");
+            println!("{}", "Pressing Ctrl+C. Ends the Game.".yellow());
             std::process::exit(0);
         }
         Err(ReadlineError::Eof) => {
-            system_bold("Pressing Ctrl+D. Ends the Game.");
+            println!("{}", "Pressing Ctrl+D. Ends the Game.".yellow());
             std::process::exit(0);
         }
         Err(e) => Err(e),

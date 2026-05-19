@@ -1,7 +1,3 @@
-use std::{
-    thread,
-    time::Duration,
-};
 use rand::RngExt;
 
 use crossterm::{
@@ -52,8 +48,8 @@ impl GameSession {
     pub fn shuffle(&self, cards: &mut Vec<Card>) {
         // Deck Shuffle.
         execute_with_spinner(
-            &format!("Deck setup and shuffle..."),
-            &format!("Deck setup and shuffle end."),
+            &format!("Deck prepare and shuffle..."),
+            &format!("Deck prepare and shuffle end."),
         || {
             hindu_shuffle(cards, &HinduParams::default());
             riffle_shuffle(cards, &RiffleParams::default());
@@ -157,7 +153,6 @@ impl GameSession {
         if let Some(card) = deck.draw() {
             target.add_hand(card);
         }
-        thread::sleep(Duration::from_millis(rand::rng().random_range(10..=100)));
     }
 
     /// 手札配り
@@ -285,7 +280,6 @@ impl GameSession {
                     }
                 }
             }
-            wait_for_dramatic_pause();
         }
     }
 }
