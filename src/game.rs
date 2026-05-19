@@ -30,6 +30,7 @@ pub fn app() -> std::io::Result<()> {
 
     // プレイヤー設定
     let mut players = game.players_setup(CPU_COUNT);
+    let players_count = players.len();
     wait_for_dramatic_pause();
 
     print_single_separator();
@@ -41,8 +42,11 @@ pub fn app() -> std::io::Result<()> {
     print_single_separator();
 
     // ベット入力
-    println!("{}", "Todo: Bet processing.".red());
-    game.input_chip(&mut players[0]);
+    println!("{}", "Todo: CPU Bet processing.".red());
+    for i in 0..players_count {
+        let idx = (current + i) % players_count;
+        game.input_bet(&mut players[idx]);
+    }
     wait_for_dramatic_pause();
 
     print_single_separator();
@@ -58,6 +62,7 @@ pub fn app() -> std::io::Result<()> {
 
     print_single_separator();
 
+    // プレイヤー操作
     // ヒット or スタンド
     println!("{}", "Todo: Input Hit or Stand.".red());
     game.input_call(current, &mut deck, &mut players);

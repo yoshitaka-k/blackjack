@@ -9,8 +9,12 @@ use crossterm::{
 };
 
 use crate::constants::{
+    START_CHIP,
     MIN_CHIP,
     DEFAULT_CHIP,
+    CALL_HIT,
+    CALL_STAND,
+    CALL_WORDS,
 };
 use crate::cli::{
     indicate::{execute_with_spinner},
@@ -111,21 +115,37 @@ impl GameSession {
     }
 
     /// 賭けチップ入力
-    pub fn input_chip(&self, player: &mut Player) {
-        let chip = input_isize_read_line(
-            &format!(
-                "Input: {}-{} (Default: {})",
+    pub fn input_bet(&self, player: &mut Player) {
+        println!("Input: {}. ", player.get_name());
+
+        let bet: isize;
+
+        if player.is_human() {
+            bet = input_isize_read_line(
+                &format!(
+                    "Input: {}-{} (Default: {})",
+                    MIN_CHIP,
+                    player.get_chip(),
+                    DEFAULT_CHIP
+                ),
+                DEFAULT_CHIP,
                 MIN_CHIP,
                 player.get_chip(),
-                DEFAULT_CHIP
-            ),
-            DEFAULT_CHIP,
-            MIN_CHIP,
-            player.get_chip(),
-        );
+            );
+        } else {
+            if player.get_chip() > 1 {
+                // 1から所持数の半分まで、小数点以下は切り捨て
+                let max = player.get_chip().div_euclid(2) as i32;
+                bet = rand::rng().random_range(MIN_CHIP as i32..=max) as isize;
+            } else  if player.get_chip() < 1 {
+                bet = rand::rng().random_range(MIN_CHIP as i32..=START_CHIP as i32) as isize;
+            } else {
+                bet = MIN_CHIP;
+            }
+        }
 
-        println!("  >> Bet {}", chip);
-        player.set_bet(chip);
+        println!("  >> Bet {}", bet);
+        player.set_bet(bet as usize);
     }
 
     /// 1人に手札配り

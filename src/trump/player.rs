@@ -54,7 +54,8 @@ pub struct Player {
     role: PlayerRole,
     hand: CardSet,
     chip: isize,
-    bet: isize,
+    bet: usize,
+    status: PlayerStatus,
 }
 
 impl Player {
@@ -115,7 +116,21 @@ impl Player {
     }
 
     /// ベット保持
-    pub fn set_bet(&mut self, chip: isize) {
-        self.bet = chip;
+    pub fn set_bet(&mut self, bet: usize) {
+        self.bet = bet;
+    }
+
+    /// 所持チップ変動
+    pub fn update_chip(&mut self, is_win: bool) {
+        if self.bet == 0 {
+            return;
+        }
+
+        if is_win {
+            self.chip = self.chip + self.bet as isize;
+        } else {
+            self.chip = self.chip + (self.bet as isize * -1);
+        }
+        self.bet = 0;
     }
 }
