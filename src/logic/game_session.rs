@@ -121,16 +121,21 @@ impl GameSession {
         let bet: isize;
 
         if player.is_human() {
+            let mut max = player.get_chip();
+            if max <= 0 {
+                max = START_CHIP;
+            }
+
             bet = input_isize_read_line(
                 &format!(
                     "Input: {}-{} (Default: {})",
                     MIN_CHIP,
-                    player.get_chip(),
+                    max,
                     DEFAULT_CHIP
                 ),
                 DEFAULT_CHIP,
                 MIN_CHIP,
-                player.get_chip(),
+                max,
             );
         } else {
             if player.get_chip() > 1 {
