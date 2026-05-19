@@ -32,6 +32,8 @@ pub const KING_STR_RANK: &str = "K";
 
 /// 使用デッキ数
 pub const NUM_DECKS: usize = 3;
+/// ラウンド数
+pub const DEFAULT_ROUND_COUNT: usize = 3;
 /// CPU人数
 pub const CPU_COUNT: usize = 3;
 /// ブラックジャック

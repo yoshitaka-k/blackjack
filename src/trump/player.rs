@@ -57,6 +57,10 @@ impl CardSet {
 
         total
     }
+
+    fn clear(&mut self) {
+        self.0.clear();
+    }
 }
 
 /// プレイヤー
@@ -193,5 +197,12 @@ impl Player {
     /// 状態参照
     pub fn get_status(&self) -> &PlayerStatus {
         &self.status
+    }
+
+    /// 初期化
+    pub fn clear(&mut self) {
+        self.hand.clear();
+        self.bet = 0;
+        self.status = PlayerStatus::None;
     }
 }

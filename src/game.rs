@@ -2,7 +2,7 @@ use crossterm::{
     style::{Stylize},
 };
 
-use crate::constants::{NUM_DECKS, CPU_COUNT};
+use crate::constants::{NUM_DECKS, DEFAULT_ROUND_COUNT, CPU_COUNT};
 use crate::cli::{
     console::{
         print_br,
@@ -18,11 +18,12 @@ use crate::cli::{
 use crate::{wait_for_dramatic_pause};
 
 use crate::logic::{GameSession};
-use crate::trump::{Deck, PlayerStatus};
+use crate::trump::{Deck, Player, PlayerStatus};
 
 /// ゲームフロー処理
 pub fn app() -> std::io::Result<()> {
     let game = GameSession::new();
+    let round_count = DEFAULT_ROUND_COUNT;
 
     // ディーラー設定
     let mut dealer = game.dealer_setup();
@@ -45,10 +46,58 @@ pub fn app() -> std::io::Result<()> {
     print_double_separator();
 
     // 起家設定
-    let current = game.starting_setup(&players);
+    let mut current = game.starting_setup(&players);
     wait_for_dramatic_pause();
 
-    print_single_separator();
+    print_double_separator();
+
+    print_br();
+
+    for round in 0..round_count {
+        println!("Round: {}/{}", round + 1, round_count);
+
+        print_br();
+
+        print_double_separator();
+
+        game_run(current, &mut deck, &mut dealer, &mut players);
+
+        println!("=================== {} ==================", "Game Result".yellow());
+
+        // 判定
+        println!("{}", "Todo: Natural Blackjack processing.".red());
+        game.end_fase(&dealer, &mut players);
+        wait_for_dramatic_pause();
+
+        print_double_separator();
+
+        print_br();
+
+        println!("=================== {} ==================", "Chip Result".yellow());
+
+        players_chip_display(&players);
+
+        print_double_separator();
+
+        print_br();
+
+        wait_for_dramatic_pause();
+
+        // 初期化
+        dealer.clear();
+        for player in &mut players {
+            player.clear();
+        }
+
+        current = (current + 1) % players_count;
+    }
+
+    Ok(())
+}
+
+fn game_run(current: usize, deck: &mut Deck, dealer: &mut Player, players: &mut Vec<Player>) {
+    let game = GameSession::new();
+    let players_count = players.len();
 
     // ベット入力
     for i in 0..players_count {
@@ -59,8 +108,12 @@ pub fn app() -> std::io::Result<()> {
 
     print_double_separator();
 
+    print_br();
+
+    print_double_separator();
+
     // 手札配り
-    game.deal_setup(current, &mut deck, &mut players, &mut dealer);
+    game.deal_setup(current, deck, players, dealer);
     wait_for_dramatic_pause();
 
     print_single_separator();
@@ -97,7 +150,7 @@ pub fn app() -> std::io::Result<()> {
             wait_for_dramatic_pause();
 
             // コール処理
-            game.call_process(&mut deck, &mut players[idx]);
+            game.call_process(deck, &mut players[idx]);
             hand_display_one(&players[idx], true);
             wait_for_dramatic_pause();
         }
@@ -117,11 +170,11 @@ pub fn app() -> std::io::Result<()> {
         }
         need_separator = true;
 
-        game.input_call(&mut dealer);
+        game.input_call(dealer);
         wait_for_dramatic_pause();
 
         // コール処理
-        game.call_process(&mut deck, &mut dealer);
+        game.call_process(deck, dealer);
         hand_display_one(&dealer, true);
         wait_for_dramatic_pause();
     }
@@ -131,21 +184,4 @@ pub fn app() -> std::io::Result<()> {
     print_br();
 
     wait_for_dramatic_pause();
-
-    println!("=================== {} ==================", "Game Result".yellow());
-
-    // 判定
-    println!("{}", "Todo: Natural Blackjack processing.".red());
-    game.end_fase(&dealer, &mut players);
-    wait_for_dramatic_pause();
-
-    print_double_separator();
-
-    print_br();
-
-    println!("=================== {} ==================", "Chip Result".yellow());
-
-    players_chip_display(&players);
-
-    Ok(())
 }
