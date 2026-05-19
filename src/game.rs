@@ -61,7 +61,7 @@ pub fn app() -> Result<(), Box<dyn Error>> {
     let mut players = if load_data.is_empty() {
         game.players_setup(CPU_COUNT)
     } else {
-        game.players_data_load(&load_data)
+        game.players_data_load(&load_data, CPU_COUNT)
     };
 
     let players_count = players.len();

@@ -40,7 +40,7 @@ impl Data {
             .has_headers(false)
             .from_path(CSV_PATH)?;
 
-        wtr.write_record(&["name", "chip"])?;
+        wtr.write_record(&["name", "Human", "Player", "0"])?;
         wtr.flush()?;
 
         Ok(())

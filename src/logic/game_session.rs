@@ -5,6 +5,7 @@ use crossterm::{
 };
 
 use crate::constants::{
+    CPU_COUNT,
     TWENTY_ONE_NUM,
     START_CHIP,
     MIN_CHIP,
@@ -92,11 +93,15 @@ impl GameSession {
     }
 
     /// プレイヤー情報読み込み
-    pub fn players_data_load(&self, load_data: &Vec<Record>) -> Vec<Player> {
+    pub fn players_data_load(&self, load_data: &Vec<Record>, cpu_count: usize) -> Vec<Player> {
         print!("{} ", "/".green());
         println!("Players load data.");
 
         let mut players: Vec<Player> = Vec::new();
+
+        if load_data.len() != CPU_COUNT + 1 {
+            return self.players_setup(cpu_count);
+        }
 
         for data in load_data {
             let player = Player::load(&data);
