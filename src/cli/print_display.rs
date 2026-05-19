@@ -28,7 +28,7 @@ pub fn title_display() {
 }
 
 /// 1人手札表示
-fn hand_display_one(player: &Player, open: bool) {
+pub fn hand_display_one(player: &Player, open: bool) {
     let mut msg: String = String::new();
 
     print!("  {:>6} ", player.get_name());
@@ -38,6 +38,8 @@ fn hand_display_one(player: &Player, open: bool) {
 
         if player.rank_sum() > TWENTY_ONE_NUM {
             print!("Hand ({:>2}): ", hand.red());
+        } else if player.rank_sum() == TWENTY_ONE_NUM {
+            print!("Hand ({:>2}): ", hand.green().bold());
         } else {
             print!("Hand ({:>2}): ", hand.green());
         }
@@ -70,5 +72,12 @@ pub fn players_hand_display(dealer: &Player, players: &Vec<Player>, open: bool) 
 
     for player in players {
         hand_display_one(player, true);
+    }
+}
+
+/// 所持チップ表示
+pub fn players_chip_display(players: &Vec<Player>) {
+    for player in players {
+        println!("  {:>6}: {:>3}", player.get_name(), player.get_chip());
     }
 }

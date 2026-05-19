@@ -38,3 +38,8 @@ pub const TWENTY_ONE_NUM: usize = 21;
 pub const START_CHIP: isize = 10;
 pub const MIN_CHIP: isize = 1;
 pub const DEFAULT_CHIP: isize = 1;
+
+pub const CALL_HIT: &str = "hit";
+pub const CALL_STAND: &str = "stand";
+
+pub const CALL_WORDS: &[&str] = &[CALL_HIT, CALL_STAND];

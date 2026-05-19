@@ -4,8 +4,16 @@ use crossterm::{
 
 use crate::constants::{CPU_COUNT};
 use crate::cli::{
-    console::{print_single_separator},
-    print_display::{players_hand_display},
+    console::{
+        print_br,
+        print_single_separator,
+        print_double_separator,
+    },
+    print_display::{
+        hand_display_one,
+        players_hand_display,
+        players_chip_display,
+    },
 };
 use crate::{wait_for_dramatic_pause};
 
@@ -33,7 +41,7 @@ pub fn app() -> std::io::Result<()> {
     let players_count = players.len();
     wait_for_dramatic_pause();
 
-    print_single_separator();
+    print_double_separator();
 
     // 起家設定
     let current = game.starting_setup(&players);
@@ -42,20 +50,19 @@ pub fn app() -> std::io::Result<()> {
     print_single_separator();
 
     // ベット入力
-    println!("{}", "Todo: CPU Bet processing.".red());
     for i in 0..players_count {
         let idx = (current + i) % players_count;
         game.input_bet(&mut players[idx]);
     }
     wait_for_dramatic_pause();
 
-    print_single_separator();
+    print_double_separator();
 
     // 手札配り
     game.deal_setup(current, &mut deck, &mut players, &mut dealer);
     wait_for_dramatic_pause();
 
-    print_single_separator();
+    print_double_separator();
 
     // 手札表示
     players_hand_display(&dealer, &players, false);
@@ -64,11 +71,53 @@ pub fn app() -> std::io::Result<()> {
 
     // プレイヤー操作
     // ヒット or スタンド
-    println!("{}", "Todo: Input Hit or Stand.".red());
-    game.input_call(current, &mut deck, &mut players);
+    println!("{}", "Todo: call processing.".red());
+    for i in 0..players_count {
+        let idx = (current + i) % players_count;
+        // コール入力
+        game.input_call(&mut players[idx]);
+        wait_for_dramatic_pause();
+
+        // コール処理
+        game.call_process(&mut deck, &mut players[idx]);
+        hand_display_one(&players[idx], true);
+        wait_for_dramatic_pause();
+
+        if i < (players_count-1) {
+            print_single_separator();
+        }
+    }
+
+    print_double_separator();
+
+    // ディーラー操作
+    game.input_call(&mut dealer);
     wait_for_dramatic_pause();
 
-    print_single_separator();
+    // コール処理
+    game.call_process(&mut deck, &mut dealer);
+    hand_display_one(&dealer, true);
+    wait_for_dramatic_pause();
+
+    print_double_separator();
+
+    print_br();
+
+    println!("=================== {} ==================", "Game Result".yellow());
+
+    // 判定
+    println!("{}", "Todo: End face processing.".red());
+    println!("{}", "Todo: Natural Blackjack processing.".red());
+    game.end_fase(&dealer, &mut players);
+    wait_for_dramatic_pause();
+
+    print_double_separator();
+
+    print_br();
+
+    println!("=================== {} ==================", "Chip Result".yellow());
+
+    players_chip_display(&players);
 
     Ok(())
 }

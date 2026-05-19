@@ -9,6 +9,7 @@ use crossterm::{
 };
 
 use crate::constants::{
+    TWENTY_ONE_NUM,
     START_CHIP,
     MIN_CHIP,
     DEFAULT_CHIP,
@@ -22,6 +23,7 @@ use crate::cli::{
         input_isize_read_line,
         input_match_read_line_with_words,
     },
+    print_display::{hand_display_one},
 };
 use crate::trump::shuffle::{
     double_cut,
@@ -37,7 +39,9 @@ use crate::{
     wait_for_dramatic_pause,
 };
 
-use crate::trump::{Card, Deck, Player, PlayerType, PlayerRole};
+use crate::trump::{Card, Deck, Player, PlayerType, PlayerRole, PlayerStatus};
+
+const CPU_STAND_LINE: usize = 16;
 
 /// ゲームフロー毎の処理
 pub struct GameSession();
@@ -116,7 +120,7 @@ impl GameSession {
 
     /// 賭けチップ入力
     pub fn input_bet(&self, player: &mut Player) {
-        println!("Input: {}. ", player.get_name());
+        println!("Input Bet: {}. ", player.get_name());
 
         let bet: isize;
 
@@ -175,12 +179,84 @@ impl GameSession {
     }
 
     /// コール入力
-    pub fn input_call(&self, current: usize, deck: &mut Deck, players: &mut Vec<Player>) {
-        let input = input_match_read_line_with_words(
-            "hit or stand? [Tab]",
-            r"^(hit|stand)$",
-            &["hit", "stand"],
-        );
-        println!("{}", input);
+    pub fn input_call(&self, player: &mut Player) {
+        println!("Input Call: {}. ", player.get_name());
+
+        let input: String;
+
+        if player.is_human() {
+            hand_display_one(player, true);
+
+            input = input_match_read_line_with_words(
+                &format!("{} or {}? [Tab]", CALL_HIT, CALL_STAND),
+                &format!(r"^({})$", CALL_WORDS.join("|")),
+                CALL_WORDS,
+            );
+        } else {
+            if player.rank_sum() > CPU_STAND_LINE {
+                input = "stand".to_string();
+            } else {
+                input = "hit".to_string();
+            }
+        }
+
+        println!("  >> Call: {}", input);
+        player.set_call(&input);
+    }
+
+    /// コール処理
+    pub fn call_process(&self, deck: &mut Deck, player: &mut Player) {
+        match player.get_status() {
+            PlayerStatus::Hit => {
+                player.hit();
+                self.call_hit(deck, player);
+            },
+            PlayerStatus::Stand => {
+                player.stand();
+            },
+            _ => {},
+        }
+
+        if player.rank_sum() > TWENTY_ONE_NUM {
+            player.burst();
+        }
+    }
+
+    /// ヒット処理（手札追加）
+    fn call_hit(&self, deck: &mut Deck, player: &mut Player) {
+        if let Some(card) = deck.draw() {
+            player.add_hand(card);
+        }
+    }
+
+    /// 判定
+    pub fn end_fase(&self, dealer: &Player, players: &mut Vec<Player>) {
+        hand_display_one(dealer, true);
+        if dealer.rank_sum() > TWENTY_ONE_NUM {
+            println!("      >> {}", "Burst.".red());
+        }
+
+        for player in players {
+            hand_display_one(player, true);
+            match player.get_status() {
+                PlayerStatus::Burst => {
+                    println!("      >> {}", "Burst.".red());
+                    player.update_chip(false);
+                },
+                _ => {
+                    if player.rank_sum() > dealer.rank_sum() {
+                        println!("      >> {}", "Win.".green());
+                        player.update_chip(true);
+                    } else if player.rank_sum() == dealer.rank_sum() {
+                        println!("      >> {}", "Push.".green());
+                        player.clear_bet();
+                    } else {
+                        println!("      >> {}", "Lose.".red());
+                        player.update_chip(false);
+                    }
+                }
+            }
+            wait_for_dramatic_pause();
+        }
     }
 }

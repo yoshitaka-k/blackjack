@@ -2,6 +2,9 @@ use crate::constants::{
     START_CHIP,
     ACE_FROM_RANK,
     ACE_TO_RANK,
+
+    CALL_HIT,
+    CALL_STAND,
 };
 
 use crate::{Card};
@@ -18,6 +21,15 @@ pub enum PlayerRole {
     Player,
 }
 
+/// プレイヤー状態
+pub enum PlayerStatus {
+    None,
+    Hit,
+    Stand,
+    Burst,
+}
+
+/// 手札
 pub struct CardSet(Vec<Card>);
 impl CardSet {
     fn add(&mut self, card: Card) {
@@ -67,6 +79,7 @@ impl Player {
             hand: CardSet(vec![]),
             chip: START_CHIP,
             bet: 0,
+            status: PlayerStatus::None,
         }
     }
 
@@ -95,6 +108,14 @@ impl Player {
         &self.player_type
     }
 
+    /// ユーザー操作？
+    pub fn is_human(&self) -> bool {
+        match self.player_type {
+            PlayerType::Human => true,
+            PlayerType::Cpu => false,
+        }
+    }
+
     /// 手札にカードを1枚追加
     pub fn add_hand(&mut self, card: Card) {
         self.hand.add(card);
@@ -120,6 +141,11 @@ impl Player {
         self.bet = bet;
     }
 
+    /// ベット初期値
+    pub fn clear_bet(&mut self) {
+        self.bet = 0;
+    }
+
     /// 所持チップ変動
     pub fn update_chip(&mut self, is_win: bool) {
         if self.bet == 0 {
@@ -132,5 +158,40 @@ impl Player {
             self.chip = self.chip + (self.bet as isize * -1);
         }
         self.bet = 0;
+    }
+
+    /// 状態保持
+    pub fn set_call(&mut self, call: &str) {
+        match call {
+            CALL_HIT => {
+                self.status = PlayerStatus::Hit;
+            },
+            CALL_STAND => {
+                self.status = PlayerStatus::Stand;
+            },
+            _ => {
+                self.status = PlayerStatus::None;
+            }
+        }
+    }
+
+    /// ヒット状態
+    pub fn hit(&mut self) {
+        self.status = PlayerStatus::Hit;
+    }
+
+    /// スタンド状態
+    pub fn stand(&mut self) {
+        self.status = PlayerStatus::Stand;
+    }
+
+    /// バースト状態
+    pub fn burst(&mut self) {
+        self.status = PlayerStatus::Burst;
+    }
+
+    /// 状態参照
+    pub fn get_status(&self) -> &PlayerStatus {
+        &self.status
     }
 }

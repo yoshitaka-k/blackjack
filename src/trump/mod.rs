@@ -15,3 +15,4 @@ pub use field::Field;
 pub use player::Player;
 pub use player::PlayerType;
 pub use player::PlayerRole;
+pub use player::PlayerStatus;
