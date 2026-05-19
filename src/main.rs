@@ -1,16 +1,19 @@
-use std::io::{stdout};
+use std::{
+    io::stdout,
+    error::Error,
+};
 use crossterm::{
     execute,
     cursor::{MoveTo},
     terminal::{Clear, ClearType},
 };
 
-use blackjack::cli::{
-    print_display::{title_display}
+use blackjack::{
+    cli::print_display::title_display,
+    game::app,
 };
-use blackjack::game::{app};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     let mut stroke = stdout();
 
     execute!(

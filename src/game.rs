@@ -1,4 +1,7 @@
-use std::io::{stdout};
+use std::{
+    io::stdout,
+    error::Error,
+};
 
 use crossterm::{
     execute,
@@ -31,11 +34,11 @@ use crate::{
     wait_for_long_dramatic_pause,
 };
 
-use crate::logic::{GameSession};
+use crate::logic::{GameSession, Data};
 use crate::trump::{Deck, Player, PlayerStatus};
 
 /// ゲームフロー処理
-pub fn app() -> std::io::Result<()> {
+pub fn app() -> Result<(), Box<dyn Error>> {
     let mut stroke = stdout();
     let game = GameSession::new();
     let round_count = DEFAULT_ROUND_COUNT;
@@ -54,7 +57,13 @@ pub fn app() -> std::io::Result<()> {
     print_single_separator();
 
     // プレイヤー設定
-    let mut players = game.players_setup(CPU_COUNT);
+    let load_data = Data::load()?;
+    let mut players = if load_data.is_empty() {
+        game.players_setup(CPU_COUNT)
+    } else {
+        game.players_data_load(&load_data)
+    };
+
     let players_count = players.len();
     wait_for_dramatic_pause();
 
@@ -72,7 +81,6 @@ pub fn app() -> std::io::Result<()> {
         "Next Round ...",
         "",
     || {
-        wait_for_long_dramatic_pause();
         wait_for_long_dramatic_pause();
     });
 
@@ -117,14 +125,6 @@ pub fn app() -> std::io::Result<()> {
 
         wait_for_dramatic_pause();
 
-        execute_with_spinner(
-            "Next Round ...",
-            "",
-        || {
-            wait_for_long_dramatic_pause();
-            wait_for_long_dramatic_pause();
-        });
-
         // 初期化
         dealer.clear();
         for player in &mut players {
@@ -132,7 +132,27 @@ pub fn app() -> std::io::Result<()> {
         }
 
         current = (current + 1) % players_count;
+
+        execute_with_spinner(
+            "Saving...",
+            "Saved.",
+        || {
+            // プレイヤー情報書き込み
+            let _ = Data::save(&players);
+            wait_for_long_dramatic_pause();
+        });
+
+        if round < round_count - 1 {
+            execute_with_spinner(
+                "Next Round ...",
+                "",
+            || {
+                wait_for_long_dramatic_pause();
+            });
+        }
     }
+
+    print_br();
 
     Ok(())
 }

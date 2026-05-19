@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 use crate::constants::{
     START_CHIP,
     ACE_FROM_RANK,
@@ -7,15 +9,18 @@ use crate::constants::{
     CALL_STAND,
 };
 
-use crate::{Card};
+use crate::trump::{Card};
+use crate::logic::{Record};
 
 /// プレイヤー、CPU判断
+#[derive(Clone, Deserialize, Serialize)]
 pub enum PlayerType {
     Human,
     Cpu,
 }
 
-/// プレイヤー、CPU判断
+/// ディーラー、プレイヤー判断
+#[derive(Clone, Deserialize, Serialize)]
 pub enum PlayerRole {
     Dealer,
     Player,
@@ -75,6 +80,7 @@ pub struct Player {
 }
 
 impl Player {
+    /// プレイヤー構造体作成
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
@@ -82,6 +88,19 @@ impl Player {
             role: PlayerRole::Player,
             hand: CardSet(vec![]),
             chip: START_CHIP,
+            bet: 0,
+            status: PlayerStatus::None,
+        }
+    }
+
+    /// プレイヤー構造体読み込み
+    pub fn load(data: &Record) -> Self {
+        Self {
+            name: data.name().clone(),
+            player_type: data.player_type().clone(),
+            role: data.role().clone(),
+            hand: CardSet(vec![]),
+            chip: *data.chip(),
             bet: 0,
             status: PlayerStatus::None,
         }

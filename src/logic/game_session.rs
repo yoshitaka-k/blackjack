@@ -21,6 +21,7 @@ use crate::cli::{
     },
     print_display::{hand_display_one},
 };
+use crate::logic::{Record};
 use crate::trump::shuffle::{
     double_cut,
     hindu_shuffle,
@@ -59,7 +60,7 @@ impl GameSession {
     }
 
     /// ディーラー
-    pub fn dealer_setup(&self, ) -> Player{
+    pub fn dealer_setup(&self) -> Player{
         print!("{} ", "/".green());
         println!("Dealer setup.");
 
@@ -84,6 +85,21 @@ impl GameSession {
             let mut player = Player::new(&format!("CPU {}", i));
             player.set_player_type(PlayerType::Cpu);
 
+            players.push(player);
+        }
+
+        players
+    }
+
+    /// プレイヤー情報読み込み
+    pub fn players_data_load(&self, load_data: &Vec<Record>) -> Vec<Player> {
+        print!("{} ", "/".green());
+        println!("Players load data.");
+
+        let mut players: Vec<Player> = Vec::new();
+
+        for data in load_data {
+            let player = Player::load(&data);
             players.push(player);
         }
 
