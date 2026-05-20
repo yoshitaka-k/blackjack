@@ -9,20 +9,12 @@ use crate::constants::{
     TWENTY_ONE_NUM,
     START_CHIP,
     MIN_CHIP,
-    DEFAULT_CHIP,
-    CALL_HIT,
-    CALL_STAND,
-    CALL_WORDS,
 };
 use crate::cli::{
     indicate::{execute_with_spinner},
-    input::{
-        input_isize_read_line,
-        input_match_read_line_with_words,
-    },
     print_display::{hand_display_one},
 };
-use crate::logic::{Record};
+use crate::logic::{Record, Human};
 use crate::trump::shuffle::{
     double_cut,
     hindu_shuffle,
@@ -142,22 +134,7 @@ impl GameSession {
         let bet: isize;
 
         if player.is_human() {
-            let mut max = player.get_chip();
-            if max <= 0 {
-                max = START_CHIP;
-            }
-
-            bet = input_isize_read_line(
-                &format!(
-                    "Input: {}-{} (Default: {})",
-                    MIN_CHIP,
-                    max,
-                    DEFAULT_CHIP
-                ),
-                DEFAULT_CHIP,
-                MIN_CHIP,
-                max,
-            );
+            bet = Human::bet(player);
         } else {
             if player.get_chip() > 1 {
                 // 1から所持数の半分まで、小数点以下は切り捨て
@@ -229,13 +206,7 @@ impl GameSession {
         let input: String;
 
         if player.is_human() {
-            hand_display_one(player, true);
-
-            input = input_match_read_line_with_words(
-                &format!("{} or {}? [Tab]", CALL_HIT, CALL_STAND),
-                &format!(r"^({})$", CALL_WORDS.join("|")),
-                CALL_WORDS,
-            );
+            input = Human::call(player);
         } else {
             if player.rank_sum() > CPU_STAND_LINE {
                 input = "stand".to_string();
@@ -282,28 +253,34 @@ impl GameSession {
 
         for player in players {
             hand_display_one(player, true);
-            match player.get_status() {
-                PlayerStatus::Burst => {
-                    println!("      >> {}", "Burst.".red());
+
+            self.result_judg(dealer, player);
+        }
+    }
+
+    /// リザルト判定
+    fn result_judg(&self, dealer: &Player, player: &mut Player) {
+        match player.get_status() {
+            PlayerStatus::Burst => {
+                println!("      >> {}", "Burst.".red());
+                player.update_chip(false);
+            },
+            _ => {
+                if dealer.rank_sum() > TWENTY_ONE_NUM {
+                    println!("      >> {}", "Win.".green());
+                    player.update_chip(true);
+
+                } else if player.rank_sum() > dealer.rank_sum() {
+                    println!("      >> {}", "Win.".green());
+                    player.update_chip(true);
+
+                } else if player.rank_sum() == dealer.rank_sum() {
+                    println!("      >> {}", "Push.".green());
+                    player.clear_bet();
+
+                } else {
+                    println!("      >> {}", "Lose.".red());
                     player.update_chip(false);
-                },
-                _ => {
-                    if dealer.rank_sum() > TWENTY_ONE_NUM {
-                        println!("      >> {}", "Win.".green());
-                        player.update_chip(true);
-
-                    } else if player.rank_sum() > dealer.rank_sum() {
-                        println!("      >> {}", "Win.".green());
-                        player.update_chip(true);
-
-                    } else if player.rank_sum() == dealer.rank_sum() {
-                        println!("      >> {}", "Push.".green());
-                        player.clear_bet();
-
-                    } else {
-                        println!("      >> {}", "Lose.".red());
-                        player.update_chip(false);
-                    }
                 }
             }
         }

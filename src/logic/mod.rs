@@ -5,3 +5,6 @@ pub use game_session::GameSession;
 pub mod data;
 pub use data::Data;
 pub use data::Record;
+/// ユーザー操作
+pub mod human;
+pub use human::Human;
