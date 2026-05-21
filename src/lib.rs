@@ -11,7 +11,7 @@ pub mod game;
 
 pub use cli::console::{error};
 pub use cli::input::{input_usize_read_line};
-pub use trump::{Card, Deck, Field, Player};
+pub use trump::{Card, Deck, Player};
 
 use rand::RngExt;
 
