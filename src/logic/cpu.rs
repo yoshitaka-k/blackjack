@@ -1,45 +1,70 @@
-use rand::RngExt;
+use std::error::Error;
 
-use crate::constants::{
-    START_CHIP,
-    MIN_CHIP,
-    CALL_HIT,
-    CALL_STAND,
-    // CALL_WORDS,
-    CPU_STAND_LINE,
+use serde::{Deserialize, Serialize};
+
+use crate::logic::cpulib::{
+    strategy::CpuStrategy,
+    default::DefaultStrategy,
 };
-use crate::trump::{Player};
+use crate::trump::{Player, PlayerType};
+
+/// CPU強さ
+#[derive(Clone, Deserialize, Serialize)]
+pub enum CpuLevel {
+    None,
+}
+
+impl CpuLevel {
+    const PREFIX: &'static str = "Cpu:";
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            CpuLevel::None => "None",
+        }
+    }
+
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "None" => Some(CpuLevel::None),
+            _ => None,
+        }
+    }
+
+    pub fn encode_player_type(level: &CpuLevel) -> String {
+        format!("{}{}", Self::PREFIX, level.as_str())
+    }
+
+    pub fn decode_player_type(value: &str) -> Option<CpuLevel> {
+        value.strip_prefix(Self::PREFIX).and_then(Self::from_str)
+    }
+}
 
 /// CPU処理
 pub struct Cpu();
 impl Cpu {
-    /// 賭けチップ入力
-    pub fn bet(player: &Player) -> isize {
-        let bet: isize;
-
-        if player.get_chip() > 1 {
-            // 1から所持数の半分まで、小数点以下は切り捨て
-            let max = player.get_chip().div_euclid(2) as i32;
-            bet = rand::rng().random_range(MIN_CHIP as i32..=max) as isize;
-        } else  if player.get_chip() < 1 {
-            bet = rand::rng().random_range(MIN_CHIP as i32..=START_CHIP as i32) as isize;
-        } else {
-            bet = MIN_CHIP;
+    /// 強さ選択
+    fn get_strategy(player_type: &PlayerType) -> Box<dyn CpuStrategy> {
+        match player_type {
+            PlayerType::Human => Box::new(DefaultStrategy),
+            PlayerType::Cpu(level) => {
+                match level {
+                    CpuLevel::None => Box::new(DefaultStrategy),
+                }
+            }
         }
+    }
 
-        bet
+    /// 賭けチップ入力
+    pub fn bet(player: &mut Player) -> Result<isize, Box<dyn Error>> {
+        let player_type = player.get_player_type();
+        let strategy = Self::get_strategy(player_type);
+        strategy.bet(player)
     }
 
     /// コール入力
-    pub fn call(player: &Player) -> String {
-        let input: String;
-
-        if player.rank_sum() > CPU_STAND_LINE {
-            input = CALL_STAND.to_string();
-        } else {
-            input = CALL_HIT.to_string();
-        }
-
-        input
+    pub fn call(player: &mut Player) -> Result<String, Box<dyn Error>> {
+        let player_type = player.get_player_type();
+        let strategy = Self::get_strategy(player_type);
+        strategy.call(player)
     }
 }

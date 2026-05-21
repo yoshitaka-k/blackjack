@@ -11,3 +11,6 @@ pub use human::Human;
 /// CPU操作
 pub mod cpu;
 pub use cpu::Cpu;
+pub use cpu::CpuLevel;
+/// CPUの強さ処理
+mod cpulib;

@@ -9,10 +9,11 @@ use crate::constants::{
     TWENTY_ONE_NUM,
 };
 use crate::cli::{
+    console::{error},
     indicate::{execute_with_spinner},
     print_display::{hand_display_one},
 };
-use crate::logic::{Record, Human, Cpu};
+use crate::logic::{Record, Human, Cpu, CpuLevel};
 use crate::trump::shuffle::{
     double_cut,
     hindu_shuffle,
@@ -56,7 +57,7 @@ impl GameSession {
 
         let mut dealer = Player::new("Dealer");
 
-        dealer.set_player_type(PlayerType::Cpu);
+        dealer.set_player_type(PlayerType::Cpu(CpuLevel::None));
         dealer.set_player_role(PlayerRole::Dealer);
 
         dealer
@@ -73,7 +74,7 @@ impl GameSession {
 
         for i in 1..=cpu_count {
             let mut player = Player::new(&format!("CPU {}", i));
-            player.set_player_type(PlayerType::Cpu);
+            player.set_player_type(PlayerType::Cpu(CpuLevel::None));
 
             players.push(player);
         }
@@ -128,12 +129,18 @@ impl GameSession {
     pub fn input_bet(&self, player: &mut Player) {
         println!("Input Bet: {} ({}). ", player.get_name(), player.get_chip());
 
-        let bet: isize;
+        let mut bet: isize = 0;
 
         if player.is_human() {
-            bet = Human::bet(player);
+            match Human::bet(player) {
+                Ok(b) => bet = b,
+                Err(_) => error("The input is not a number."),
+            }
         } else {
-            bet = Cpu::bet(player);
+            match Cpu::bet(player) {
+                Ok(b) => bet = b,
+                Err(_) => error("The input is not a number."),
+            }
         }
 
         println!("  >> Bet {}", bet);
@@ -192,12 +199,18 @@ impl GameSession {
     pub fn input_call(&self, player: &mut Player) {
         println!("Input Call: {}. ", player.get_name());
 
-        let input: String;
+        let mut input: String = String::new();
 
         if player.is_human() {
-            input = Human::call(player);
+            match Human::call(player) {
+                Ok(i) => input = i,
+                Err(_) => error("The input is not a call."),
+            }
         } else {
-            input = Cpu::call(player);
+            match Cpu::call(player) {
+                Ok(i) => input = i,
+                Err(_) => error("The input is not a call."),
+            }
         }
 
         println!("  >> Call: {}", input);

@@ -9,7 +9,10 @@ use crossterm::{
 };
 
 use blackjack::{
-    cli::print_display::title_display,
+    cli::{
+        console::error,
+        print_display::title_display,
+    },
     game::app,
 };
 
@@ -24,7 +27,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     title_display();
 
-    let _ = app();
+    if let Err(e) = app() {
+        error(&format!("Game aborted: {}", e));
+        std::process::exit(1);
+    }
 
     Ok(())
 }

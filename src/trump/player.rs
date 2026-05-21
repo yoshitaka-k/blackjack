@@ -1,4 +1,6 @@
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize, Deserializer, Serialize, Serializer,
+};
 
 use crate::constants::{
     START_CHIP,
@@ -9,14 +11,46 @@ use crate::constants::{
     CALL_STAND,
 };
 
+use crate::logic::{Record, cpu::CpuLevel};
 use crate::trump::{Card};
-use crate::logic::{Record};
 
 /// プレイヤー、CPU判断
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone)]
 pub enum PlayerType {
     Human,
-    Cpu,
+    Cpu(CpuLevel),
+}
+
+impl Serialize for PlayerType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let encoded = match self {
+            PlayerType::Human => "Human".to_string(),
+            PlayerType::Cpu(level) => CpuLevel::encode_player_type(level),
+        };
+        serializer.serialize_str(&encoded)
+    }
+}
+
+impl<'de> Deserialize<'de> for PlayerType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        match value.as_str() {
+            "Human" => Ok(PlayerType::Human),
+            // 旧セーブデータ（レベルなし）
+            "Cpu" => Ok(PlayerType::Cpu(CpuLevel::None)),
+            _ => CpuLevel::decode_player_type(&value)
+                .map(PlayerType::Cpu)
+                .ok_or_else(|| {
+                    serde::de::Error::custom(format!("unknown player type: {}", value))
+                }),
+        }
+    }
 }
 
 /// ディーラー、プレイヤー判断
@@ -135,7 +169,7 @@ impl Player {
     pub fn is_human(&self) -> bool {
         match self.player_type {
             PlayerType::Human => true,
-            PlayerType::Cpu => false,
+            PlayerType::Cpu(_) => false,
         }
     }
 
