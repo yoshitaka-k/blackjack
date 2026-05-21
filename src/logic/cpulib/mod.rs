@@ -2,3 +2,4 @@
 pub(super) mod strategy;
 /// 強さ指定なし
 pub(super) mod default;
+pub(super) mod beginner;

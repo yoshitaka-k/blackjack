@@ -11,18 +11,18 @@ use crate::constants::{
 use crate::logic::cpulib::strategy::CpuStrategy;
 use crate::trump::{Player};
 
-const CPU_STAND_LINE: usize = 16;
+const CPU_STAND_LINE: usize = 18;
 
 /// 強さ指定なし
-pub struct DefaultStrategy;
-impl CpuStrategy for DefaultStrategy {
+pub struct BeginnerStrategy;
+impl CpuStrategy for BeginnerStrategy {
     /// ベット掛け方
     fn bet(&self, player: &mut Player) -> Result<isize, Box<dyn Error>> {
         let bet: isize;
 
         if player.get_chip() > 1 {
-            // 1から所持数の半分まで、小数点以下は切り捨て
-            let max = player.get_chip().div_euclid(2) as i32;
+            // 1から所持数の80%分まで、小数点以下は切り捨て
+            let max = (player.get_chip() as f64 * 0.8).floor() as i32;
             bet = rand::rng().random_range(MIN_CHIP as i32..=max) as isize;
         } else  if player.get_chip() < 1 {
             bet = rand::rng().random_range(MIN_CHIP as i32..=START_CHIP as i32) as isize;

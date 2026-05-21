@@ -1,17 +1,27 @@
 use std::error::Error;
+use rand::prelude::IndexedRandom;
 
 use serde::{Deserialize, Serialize};
 
 use crate::logic::cpulib::{
     strategy::CpuStrategy,
     default::DefaultStrategy,
+    beginner::BeginnerStrategy,
 };
 use crate::trump::{Player, PlayerType};
+
+/// CPU強さグループ
+#[derive(Copy, Clone)]
+pub enum CpuLevelGroup {
+    None,
+    Beginner,
+}
 
 /// CPU強さ
 #[derive(Clone, Deserialize, Serialize)]
 pub enum CpuLevel {
     None,
+    Beginner,
 }
 
 impl CpuLevel {
@@ -20,12 +30,14 @@ impl CpuLevel {
     pub fn as_str(&self) -> &'static str {
         match self {
             CpuLevel::None => "None",
+            CpuLevel::Beginner => "Beginner",
         }
     }
 
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
             "None" => Some(CpuLevel::None),
+            "Beginner" => Some(CpuLevel::Beginner),
             _ => None,
         }
     }
@@ -42,6 +54,26 @@ impl CpuLevel {
 /// CPU処理
 pub struct Cpu();
 impl Cpu {
+    /// CPUの強さグループ
+    /// 6分の1でCPUの強さを決める
+    fn level_choices(level_group: &CpuLevelGroup) -> [CpuLevel; 2] {
+        match level_group {
+            CpuLevelGroup::None => [
+                CpuLevel::None, CpuLevel::None,
+            ],
+            CpuLevelGroup::Beginner => [
+                CpuLevel::None, CpuLevel::Beginner,
+            ],
+        }
+    }
+
+    /// CPUの強さ設定
+    /// 強さグループから6分の1でCPUの強さを決める
+    pub fn new_level(level_group: &CpuLevelGroup) -> CpuLevel {
+        let choices = Self::level_choices(&level_group);
+        choices.choose(&mut rand::rng()).unwrap().clone()
+    }
+
     /// 強さ選択
     fn get_strategy(player_type: &PlayerType) -> Box<dyn CpuStrategy> {
         match player_type {
@@ -49,6 +81,7 @@ impl Cpu {
             PlayerType::Cpu(level) => {
                 match level {
                     CpuLevel::None => Box::new(DefaultStrategy),
+                    CpuLevel::Beginner => Box::new(BeginnerStrategy),
                 }
             }
         }

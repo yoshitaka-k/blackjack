@@ -13,7 +13,7 @@ use crate::cli::{
     indicate::{execute_with_spinner},
     print_display::{hand_display_one},
 };
-use crate::logic::{Record, Human, Cpu, CpuLevel};
+use crate::logic::{Record, Human, Cpu, CpuLevel, CpuLevelGroup};
 use crate::trump::shuffle::{
     double_cut,
     hindu_shuffle,
@@ -74,7 +74,7 @@ impl GameSession {
 
         for i in 1..=cpu_count {
             let mut player = Player::new(&format!("CPU {}", i));
-            player.set_player_type(PlayerType::Cpu(CpuLevel::None));
+            player.set_player_type(PlayerType::Cpu(Cpu::new_level(&CpuLevelGroup::Beginner)));
 
             players.push(player);
         }

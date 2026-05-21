@@ -10,7 +10,6 @@ use crate::constants::{
     CALL_HIT,
     CALL_STAND,
 };
-
 use crate::logic::{Record, cpu::CpuLevel};
 use crate::trump::{Card};
 
