@@ -49,5 +49,7 @@ pub const CALL_STAND: &str = "stand";
 
 pub const CALL_WORDS: &[&str] = &[CALL_HIT, CALL_STAND];
 
+pub const CPU_STAND_LINE: usize = 16;
+
 /// 外部ファイル読み書き
 pub const CSV_PATH: &str = "data.dat";

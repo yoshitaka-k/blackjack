@@ -7,14 +7,12 @@ use crossterm::{
 use crate::constants::{
     CPU_COUNT,
     TWENTY_ONE_NUM,
-    START_CHIP,
-    MIN_CHIP,
 };
 use crate::cli::{
     indicate::{execute_with_spinner},
     print_display::{hand_display_one},
 };
-use crate::logic::{Record, Human};
+use crate::logic::{Record, Human, Cpu};
 use crate::trump::shuffle::{
     double_cut,
     hindu_shuffle,
@@ -31,7 +29,6 @@ use crate::{
 
 use crate::trump::{Card, Deck, Player, PlayerType, PlayerRole, PlayerStatus};
 
-const CPU_STAND_LINE: usize = 16;
 
 /// ゲームフロー毎の処理
 pub struct GameSession();
@@ -136,15 +133,7 @@ impl GameSession {
         if player.is_human() {
             bet = Human::bet(player);
         } else {
-            if player.get_chip() > 1 {
-                // 1から所持数の半分まで、小数点以下は切り捨て
-                let max = player.get_chip().div_euclid(2) as i32;
-                bet = rand::rng().random_range(MIN_CHIP as i32..=max) as isize;
-            } else  if player.get_chip() < 1 {
-                bet = rand::rng().random_range(MIN_CHIP as i32..=START_CHIP as i32) as isize;
-            } else {
-                bet = MIN_CHIP;
-            }
+            bet = Cpu::bet(player);
         }
 
         println!("  >> Bet {}", bet);
@@ -208,11 +197,7 @@ impl GameSession {
         if player.is_human() {
             input = Human::call(player);
         } else {
-            if player.rank_sum() > CPU_STAND_LINE {
-                input = "stand".to_string();
-            } else {
-                input = "hit".to_string();
-            }
+            input = Cpu::call(player);
         }
 
         println!("  >> Call: {}", input);

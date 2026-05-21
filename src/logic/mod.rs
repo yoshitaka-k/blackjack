@@ -8,3 +8,6 @@ pub use data::Record;
 /// ユーザー操作
 pub mod human;
 pub use human::Human;
+/// CPU操作
+pub mod cpu;
+pub use cpu::Cpu;
