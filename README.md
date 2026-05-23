@@ -7,9 +7,5 @@
 
 Rustの勉強がてら、トランプゲームの Blackjack でも作ってみようと思って作成中なぅ
 
-```bash
-cargo run
-```
-
 ## License
 [Apache-2.0](https://github.com/yoshitaka-k/blackjack/blob/main/LICENSE)
